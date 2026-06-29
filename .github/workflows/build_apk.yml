@@ -23,23 +23,30 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Confirm versions
-        run: |
-          java -version
-          flutter --version
-
       - name: Create Android platform files
         run: flutter create . --platforms android
 
-      - name: Force Android compileSdk 36
+      - name: Force compileSdk 36
         run: |
-          if [ -f android/app/build.gradle.kts ]; then
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' android/app/build.gradle.kts
-          fi
-          if [ -f android/app/build.gradle ]; then
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' android/app/build.gradle
-            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/g' android/app/build.gradle
-          fi
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path("android/app/build.gradle.kts"),
+              Path("android/app/build.gradle"),
+          ]
+
+          for p in files:
+              if p.exists():
+                  text = p.read_text()
+                  text = text.replace("compileSdk = flutter.compileSdkVersion", "compileSdk = 36")
+                  text = text.replace("compileSdk = 33", "compileSdk = 36")
+                  text = text.replace("compileSdkVersion flutter.compileSdkVersion", "compileSdkVersion 36")
+                  text = text.replace("compileSdkVersion 33", "compileSdkVersion 36")
+                  p.write_text(text)
+                  print("UPDATED:", p)
+                  print(p.read_text())
+          PY
 
       - name: Get dependencies
         run: flutter pub get
