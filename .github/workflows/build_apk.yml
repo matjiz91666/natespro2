@@ -27,12 +27,11 @@ jobs:
         run: |
           java -version
           flutter --version
-          flutter doctor -v
 
       - name: Create Android platform files
         run: flutter create . --platforms android
 
-           - name: Force Android compileSdk 36
+      - name: Force Android compileSdk 36
         run: |
           if [ -f android/app/build.gradle.kts ]; then
             sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' android/app/build.gradle.kts
@@ -40,12 +39,12 @@ jobs:
           if [ -f android/app/build.gradle ]; then
             sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' android/app/build.gradle
             sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/g' android/app/build.gradle
-          fi 
-      
+          fi
+
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Generate launcher icon
+      - name: Generate Android icon
         run: dart run flutter_launcher_icons
 
       - name: Build APK
